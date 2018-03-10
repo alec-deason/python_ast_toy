@@ -123,7 +123,7 @@ class MutateAST(ast.NodeTransformer):
 
 def calculate_frame(frame_number, pixel_func, frame_size):
     """ Take our random pixel function and use it to calculate a numpy
-    3 dimensional numpy array of 8 bit ints which is the format our image
+    3 dimensional array of 8 bit ints which is the format our image
     writer expects.
     """
 
@@ -164,12 +164,13 @@ def calculate_frame(frame_number, pixel_func, frame_size):
 
 
 def do_mutation(ast_tree):
-    """ Applies our mutator to the ast_tree and turns the new version
-    back into executable code. Returns the modified tree.
+    """ Applies our mutator to the ast_tree and turns the new version.
+    Returns the modified tree.
     """
 
     # NOTE: We copy the tree because our code actually modifies nodes
     # in place.
+    # TODO: That's dumb, it should leave the origonal unchanged
     ast_tree = MutateAST().visit(deepcopy(ast_tree))
 
     return ast_tree
@@ -262,6 +263,9 @@ def main(output_path, seed, size, frame_count):
                 # a lead in to the loop
                 for _ in range(intro_frames):
                     writer.append_data(image.astype(np.uint8))
+
+            # The previous mutation worked (or did after some retries).
+            # Make a new mutation and move on to the next frame.
             success = True
             pixel_functions.append(pixel_function)
             prev_ast_tree = ast_tree
